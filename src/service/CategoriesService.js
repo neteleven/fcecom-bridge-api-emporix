@@ -20,22 +20,6 @@ const buildCategoryTree = (categories) =>
         return { id, label, ...(children.length && { children }) };
     });
 
-const getRelevantCategories = (categories, parentId, getTree) => {
-    if (parentId) {
-        let result;
-        for (const category of categories) {
-            if (category.id === parentId) {
-                const relevantCategories = category.subcategories || [];
-                result = getTree ? buildCategoryTree(relevantCategories) : getCategoryList(relevantCategories);
-            }
-            result = getRelevantCategories(category.subcategories, parentId, getTree) || result;
-        }
-        return result;
-    } else {
-        return getTree ? buildCategoryTree(categories) : getCategoryList(categories);
-    }
-};
-
 /**
  * This Method traverses through the Category tree and builds fills the idCache with data
  *
@@ -58,17 +42,30 @@ const buildCache = (categories) =>
  * @return Promise<*> The category tree.
  */
 const fetchCategories = async (lang, parentId, getTree = false) => {
-    logger.logDebug(LOGGING_NAME, `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}?lang=${lang}`);
+    let result
+    if (parentId) {
+        const {data } = await httpClient.get(
+            OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
+        );
+        result = data
+    } else if(getTree){
+        return //getTree ? buildCategoryTree(categories) : getCategoryList(categories);
+    } else {
+        const { data } = await httpClient.get(
+            OCC_PATH + `/catalog` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+        );
+        for (const categoryId of data.categoryIds){
+            const { data } = await httpClient.get(
+                OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
+            );
+            result = data
+        }
+    }
 
-    let { data: { categories = [] } = {}, status } = await httpClient.get(
-        OCC_PATH + `/catalog` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}?lang=${lang}`
-    );
-    categories = categories.filter(({ name }) => !!name);
-    buildCache(categories);
     return {
-        status,
-        data: getRelevantCategories(categories, parentId, getTree) || [],
-        total: categories.length
+        status: result.status,
+        categories: result,
+        total: result.length
     };
 };
 
@@ -89,8 +86,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
 
             try {
                 const { data } = await httpClient.get(
-                    OCC_PATH + `/catalog` + BASE_SITE_ID + 
-                        `/catalogs/${CATALOG_ID}/categories/${categoryId}?${new URLSearchParams({ lang })}`
+                    OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );
                 return data;
             } catch (error) {
@@ -98,11 +94,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
             }
         })
     );
-    categories = categories
-        .filter((category) => !category.errors)
-        .map((category) => {
-            return { id: category.id, label: category.name };
-        });
+    
     const responseStatus = 200;
     return { categories, responseStatus };
 };
@@ -115,6 +107,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
  * @return {Promise<string>} The URL of the category, null if given ID is invalid.
  */
 const getCategoryUrl = async (categoryId, lang) => {
+    console.log("1")
     idCache.size || (await fetchCategories(lang, true));
     if (idCache.has(categoryId)) {
         return { url: idCache.get(categoryId) };
@@ -148,14 +141,14 @@ const getCategoryList = (categories) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoriesGet = async (parentId, lang, page = 1) => {
-    const { data } = await fetchCategories(lang, parentId, false);
+    const data = await fetchCategories(lang, parentId, false);
 
     const total = data.length;
     const pageSize = 20;
     const hasNext = page * pageSize <= total;
     const start = pageSize * (page - 1);
     const end = pageSize * page;
-    const categories = data.slice(start, end);
+    const categories = data.categories;
 
     return { categories, total, hasNext };
 };
@@ -169,6 +162,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoryTreeGet = async (parentId, lang) => {
+    console.log("3")
     const { data, total } = await fetchCategories(lang, parentId, true);
 
     return { categorytree: data, total, hasNext: false };
@@ -192,7 +186,6 @@ module.exports = {
     buildCategoryTree,
     fetchCategories,
     fetchCategoriesByIds,
-    getRelevantCategories,
     getCategoryUrl,
     getCategoryList,
     categoriesGet,

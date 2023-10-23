@@ -20,6 +20,7 @@ const { BASE_URL, BASE_SITE_ID, OCC_PATH, CMS_PATH } = process.env;
 const client = axios.create({ baseURL: BASE_URL });
 client.interceptors.request.use(oauth.interceptor(tokenInterceptor, getOwnerCredentials));
 client.interceptors.request.use((config) => {
+    config.headers['X-Version'] = 'v2';
     if (airKey) {
         config.headers['Application-Interface-Key'] = airKey;
     }
