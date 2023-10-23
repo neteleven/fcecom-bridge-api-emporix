@@ -1,0 +1,23 @@
+version: '1.0'
+name: "fcecom-bridge-api-emporix"
+services:
+  node:
+    build: .
+    environment:
+      - PORT=8080
+      - BRIDGE_AUTH_USERNAME=admin
+      - BRIDGE_AUTH_PASSWORD=nimda
+      - LOG_LEVEL=
+      - CONN_MODE=HTTP
+      - OAUTH_TOKEN_URL=https://api.emporix.io/oauth/token
+      - BASE_URL=https://api.emporix.io/product/n11showcase
+      - MEDIA_CDN_URL=http://res.cloudinary.com/saas-ag/image/upload/v1694790569/n11showcase/media
+      - OCC_PATH=https://api.emporix.io
+      - BASE_SITE_ID=/n11showcase
+      - CATALOG_ID=650471fc71190941ca31fcd7
+      - API_USERNAME=admin
+      - API_PASSWORD=nimda
+      - CLIENT_ID=qObDQ5V4wS6rm2C7VA72uSpVXMbsZEAL
+      - CLIENT_SECRET=aYt3tLfuZt3TfzpG
+    ports:
+      - "8080:8080"

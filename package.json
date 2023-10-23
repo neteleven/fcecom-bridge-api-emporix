@@ -1,0 +1,35 @@
+{
+  "name": "fcecom-bridge-api-emporix",
+  "description": "FirstSpirit Connect for E-Commerce - Emporix Bridge",
+  "version": "2.0.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neteleven/fcecom-bridge-api-emporix.git"
+  },
+  "author": "Crownpeak Technology GmbH",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --coverage --silent --resetMocks --collectCoverageFrom=src/**/* --collectCoverageFrom=!src/resources/*",
+    "start:watch": "nodemon -L server.js src",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "axios-oauth-client": "^1.4.0",
+    "axios-token-interceptor": "^0.2.0",
+    "dotenv": "^8.2.0",
+    "fcecom-bridge-commons": "^2.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1",
+    "nodemon": "^2.0.19",
+    "prettier": "^2.7.1"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/src/utils/testEnvVars.js"
+    ]
+  }
+}
