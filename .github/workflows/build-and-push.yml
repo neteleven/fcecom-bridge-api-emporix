@@ -41,7 +41,6 @@ jobs:
         with:
           # relative path to the place where source code with Dockerfile is located
           context: .
-          target: bridge
           tags: |
             ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.DOCKER_REGISTRY_REPO }}:latest
           push: false
@@ -51,7 +50,6 @@ jobs:
         with:
           # relative path to the place where source code with Dockerfile is located
           context: .
-          target: bridge
           tags: |
             ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.DOCKER_REGISTRY_REPO }}:latest
           push: true
