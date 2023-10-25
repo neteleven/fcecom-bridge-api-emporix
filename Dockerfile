@@ -4,7 +4,7 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 RUN adduser -S app
 COPY . .
-RUN npm install
+RUN npm install -g nodemon
 RUN chown -R app /opt/app
 USER app
 EXPOSE 3000

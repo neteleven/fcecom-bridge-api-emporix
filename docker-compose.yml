@@ -4,7 +4,6 @@ services:
   node:
     build:
       context: .
-      target: fcecom-bridge-api-emporix
     image: fcecom-bridge-api-emporix:${NODE_ENV}
     environment:
       - PORT=8080
