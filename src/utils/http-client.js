@@ -8,8 +8,8 @@ const LOGGING_NAME = 'http-client';
 
 const {
     OAUTH_TOKEN_URL: url,
-    CLIENT_ID: client_id,
-    CLIENT_SECRET: client_secret,
+    EMPORIX_CLIENT_ID: client_id,
+    EMPORIX_CLIENT_SECRET: client_secret,
     API_USERNAME: username,
     API_PASSWORD: password,
     AIR_KEY: airKey
@@ -60,6 +60,6 @@ client.interceptors.response.use(
 module.exports = client;
 module.exports.getLastError = () => lastError;
 module.exports.constants = {
-    FULL_OCC_PATH: OCC_PATH + BASE_SITE_ID,
-    FULL_CMS_PATH: CMS_PATH + BASE_SITE_ID
+    FULL_OCC_PATH: OCC_PATH + '/' + BASE_SITE_ID,
+    FULL_CMS_PATH: CMS_PATH + '/' + BASE_SITE_ID
 };

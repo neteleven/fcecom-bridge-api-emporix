@@ -45,18 +45,18 @@ const fetchCategories = async (lang, parentId, getTree = false) => {
     let result
     if (parentId) {
         const {data } = await httpClient.get(
-            OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
+            OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
         );
         result = data
     } else if(getTree){
         return //getTree ? buildCategoryTree(categories) : getCategoryList(categories);
     } else {
         const { data } = await httpClient.get(
-            OCC_PATH + `/catalog` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+            OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
         );
         for (const categoryId of data.categoryIds){
             const { data } = await httpClient.get(
-                OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
+                OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
             );
             result = data
         }
@@ -86,7 +86,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
 
             try {
                 const { data } = await httpClient.get(
-                    OCC_PATH + `/category` + BASE_SITE_ID + `/categories/${categoryId}?${new URLSearchParams({ lang })}`
+                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );
                 return data;
             } catch (error) {
