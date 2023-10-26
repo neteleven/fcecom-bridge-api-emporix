@@ -14,11 +14,30 @@ const LIMIT = 20;
  *
  * @param {any[]} categories The arrays of categories to work with.
  */
-const buildCategoryTree = (categories) =>
-    categories.map(({ id, name: label, subcategories = [] }) => {
-        const children = buildCategoryTree(subcategories);
-        return { id, label, ...(children.length && { children }) };
-    });
+const fetchCategoryTree = async (lang, parentId) => {
+    let result
+    if (parentId) {
+        const { data } = await httpClient.get(
+            OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${parentId}?lang=${lang}`
+        );
+        result = data;
+    } else {
+        const { data } = await httpClient.get(
+            OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+        );
+        for (const categoryId of data.categoryIds){
+            const { data } = await httpClient.get(
+                OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${categoryId}?lang=${lang}`
+            );
+            result = data;
+        }
+    }
+
+    return {
+        status: result.status,
+        categories: result,
+    };
+};
 
 /**
  * This Method traverses through the Category tree and builds fills the idCache with data
@@ -41,24 +60,30 @@ const buildCache = (categories) =>
  * @param {string} parentId a filter attribute to filter the Category tree
  * @return Promise<*> The category tree.
  */
-const fetchCategories = async (lang, parentId, getTree = false) => {
+const fetchCategories = async (lang, parentId) => {
     let result
     if (parentId) {
-        const {data } = await httpClient.get(
-            OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
-        );
-        result = data
-    } else if(getTree){
-        return //getTree ? buildCategoryTree(categories) : getCategoryList(categories);
-    } else {
-        const { data } = await httpClient.get(
-            OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
-        );
-        for (const categoryId of data.categoryIds){
+        try {
             const { data } = await httpClient.get(
-                OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
+                OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
             );
-            result = data
+            result = data;
+        } catch (error) {
+            return { errors: true};
+        }
+    } else {
+        try {
+            const { data } = await httpClient.get(
+                OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+            );
+            for (const categoryId of data.categoryIds){
+                const { data } = await httpClient.get(
+                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
+                );
+                result = data;
+            }
+        } catch (error) {
+            return { errors: true}
         }
     }
 
@@ -107,7 +132,6 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
  * @return {Promise<string>} The URL of the category, null if given ID is invalid.
  */
 const getCategoryUrl = async (categoryId, lang) => {
-    console.log("1")
     idCache.size || (await fetchCategories(lang, true));
     if (idCache.has(categoryId)) {
         return { url: idCache.get(categoryId) };
@@ -162,10 +186,9 @@ const categoriesGet = async (parentId, lang, page = 1) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoryTreeGet = async (parentId, lang) => {
-    console.log("3")
-    const { data, total } = await fetchCategories(lang, parentId, true);
+    const data = await fetchCategoryTree(lang, parentId, true);
 
-    return { categorytree: data, total, hasNext: false };
+    return { categorytree: data, hasNext: false };
 };
 
 /**
@@ -183,7 +206,7 @@ const categoriesCategoryIdsGet = async (categoryIds, lang) => {
 };
 
 module.exports = {
-    buildCategoryTree,
+    fetchCategoryTree,
     fetchCategories,
     fetchCategoriesByIds,
     getCategoryUrl,
