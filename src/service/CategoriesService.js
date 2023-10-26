@@ -170,8 +170,6 @@ const categoriesGet = async (parentId, lang, page = 1) => {
     const total = data.length;
     const pageSize = 20;
     const hasNext = page * pageSize <= total;
-    const start = pageSize * (page - 1);
-    const end = pageSize * page;
     const categories = data.categories;
 
     return { categories, total, hasNext };
