@@ -21,7 +21,8 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
                 const params = `${productId}?${new URLSearchParams({ fields })}`;
                 logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
                 try {
-                    const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${params}`);
+                    //const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${params}`);
+                    const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${productIds}`);
                     return data;
                 } catch (error) {
                     return { errors: true };
@@ -43,14 +44,17 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         hasNext = page < data.pagination?.totalPages || false;
     }
 
-    products = products.map(({ id, yrn, code, name: label, description, media: images, mixins }) => {
+    products = products.map(({ code: extract, id, media, name}) => {
+        const image = media[0].url;
+        const label = name.de;
+        const thumbnail = media[0].url;
         /*
         const { thumbnail, product: image } = images.reduce(
             (map, { format, url }) => Object.assign(map, { [format]: MEDIA_CDN_URL + url }),
             {}
         );
         */
-        return { id, yrn, code, label, description, images, mixins };
+        return { extract, id, image, label, thumbnail };
     });
 
     return { products, total, hasNext, responseStatus };

@@ -14,28 +14,28 @@ const LIMIT = 20;
  *
  * @param {any[]} categories The arrays of categories to work with.
  */
-const fetchCategoryTree = async (lang, parentId) => {
-    let result
-    if (parentId) {
-        const { data } = await httpClient.get(
-            OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${parentId}?lang=${lang}`
-        );
-        result = data;
-    } else {
-        const { data } = await httpClient.get(
-            OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
-        );
-        for (const categoryId of data.categoryIds){
-            const { data } = await httpClient.get(
-                OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${categoryId}?lang=${lang}`
-            );
-            result = data;
-        }
-    }
+const buildCategoryTree = (categories) =>
+    categories.map(({ id, name: label, subcategories = [] }) => {
+        const children = buildCategoryTree(subcategories);
+        return { id, label, ...(children.length && { children }) };
+    });
 
+const fetchCategoryTree = async (lang) => {
+    let result = []
+
+    const { data } = await httpClient.get(
+        OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+    );
+    for (const categoryId of data.categoryIds){
+        const { data } = await httpClient.get(
+            OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${categoryId}?lang=${lang}`
+        );
+        result.push(data);
+    }    
+    
     return {
         status: result.status,
-        categories: result,
+        categories: buildCategoryTree(result),
     };
 };
 
