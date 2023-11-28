@@ -61,13 +61,13 @@ const buildCache = (categories) =>
  * @return Promise<*> The category tree.
  */
 const fetchCategories = async (lang, parentId) => {
-    let result
+    let resultList = []
     if (parentId) {
         try {
             const { data } = await httpClient.get(
                 OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
             );
-            result = data;
+            resultList.push(data);
         } catch (error) {
             return { errors: true};
         }
@@ -80,17 +80,21 @@ const fetchCategories = async (lang, parentId) => {
                 const { data } = await httpClient.get(
                     OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
                 );
-                result = data;
+                resultList.push(data);
             }
         } catch (error) {
             return { errors: true}
         }
     }
-
+    resultList = resultList
+    .filter((result) => !result.errors)
+    .map((result) => {
+        return { id: result.id, label: result.name };
+    });
     return {
-        status: result.status,
-        categories: result,
-        total: result.length
+        status: resultList.status,
+        categories: resultList,
+        total: resultList.length
     };
 };
 
@@ -119,7 +123,11 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
             }
         })
     );
-    
+    categories = categories
+    .filter((category) => !category.errors)
+    .map((category) => {
+        return { id: category.id, label: category.name };
+    });
     const responseStatus = 200;
     return { categories, responseStatus };
 };
@@ -186,7 +194,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
 const categoryTreeGet = async (parentId, lang) => {
     const { categories } = await fetchCategoryTree(lang, parentId, true);
 
-    return { categorytree: categories[0], hasNext: false };
+    return { categorytree: categories[0], total: categories.length, hasNext: false };
 };
 
 /**
