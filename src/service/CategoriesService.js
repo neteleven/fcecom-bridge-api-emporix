@@ -184,9 +184,9 @@ const categoriesGet = async (parentId, lang, page = 1) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoryTreeGet = async (parentId, lang) => {
-    const data = await fetchCategoryTree(lang, parentId, true);
+    const { categories } = await fetchCategoryTree(lang, parentId, true);
 
-    return { categorytree: data, hasNext: false };
+    return { categorytree: categories[0], hasNext: false };
 };
 
 /**
