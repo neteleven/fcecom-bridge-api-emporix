@@ -21,7 +21,7 @@ const buildCategoryTree = (categories) =>
     });
 
 const fetchCategoryTree = async (lang) => {
-    let result = []
+    let categories = []
 
     const { data } = await httpClient.get(
         OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
@@ -30,12 +30,19 @@ const fetchCategoryTree = async (lang) => {
         const { data } = await httpClient.get(
             OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${categoryId}?lang=${lang}`
         );
-        result.push(data);
-    }    
+        categories.push(data);
+    }
     
+    categories = categories
+    .filter((category) => !category.errors)
+    .filter((category) => !!category.name)
+    .map((category) => {
+        return { id: category.id, name: category.name, subcategories: category.subcategories };
+    });     
+    buildCache(categories);
     return {
-        status: result.status,
-        categories: buildCategoryTree(result),
+        status: categories.status,
+        categories: buildCategoryTree(categories),
     };
 };
 
@@ -44,12 +51,14 @@ const fetchCategoryTree = async (lang) => {
  *
  * @param {any[]} categories: the categories
  */
-const buildCache = (categories) =>
-    categories.forEach(({ id, url, subcategories }) => {
-        idCache.set(id, url);
-        idCache.set(url, id);
+const buildCache = (categories) => {
+    if(categories)
+    categories.forEach(({ id, name: label, subcategories }) => {
+        idCache.set(id, label);
+        idCache.set(label, id);
         buildCache(subcategories);
     });
+}
 
 /**
  * This method fetches all categories and returns them as a nested structure.
@@ -61,13 +70,13 @@ const buildCache = (categories) =>
  * @return Promise<*> The category tree.
  */
 const fetchCategories = async (lang, parentId) => {
-    let resultList = []
+    let categories = []
     if (parentId) {
         try {
             const { data } = await httpClient.get(
                 OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
             );
-            resultList.push(data);
+            categories.push(data);
         } catch (error) {
             return { errors: true};
         }
@@ -80,21 +89,22 @@ const fetchCategories = async (lang, parentId) => {
                 const { data } = await httpClient.get(
                     OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
                 );
-                resultList.push(data);
+                categories.push(data);
             }
         } catch (error) {
             return { errors: true}
         }
     }
-    resultList = resultList
-    .filter((result) => !result.errors)
-    .map((result) => {
-        return { id: result.id, label: result.name };
+    categories = categories
+    .filter((category) => !category.errors)
+    .filter((category) => !!category.name)
+    .map((category) => {
+        return { id: category.id, label: category.name };
     });
     return {
-        status: resultList.status,
-        categories: resultList,
-        total: resultList.length
+        status: categories.status,
+        categories: categories,
+        total: categories.length
     };
 };
 
@@ -125,6 +135,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
     );
     categories = categories
     .filter((category) => !category.errors)
+    .filter((category) => !!category.name)
     .map((category) => {
         return { id: category.id, label: category.name };
     });
@@ -155,12 +166,12 @@ const getCategoryUrl = async (categoryId, lang) => {
  * @return {{id: string, name: string, subcategories: *[]}[]}
  */
 const getCategoryList = (categories) => {
-    let resultList = [];
+    let categoryList = [];
     for (const category of categories) {
-        resultList.push({ id: category.id, label: category.name });
-        if (category.subcategories && category.subcategories.length) resultList.push(...getCategoryList(category.subcategories));
+        categoryList.push({ id: category.id, label: category.name });
+        if (category.subcategories && category.subcategories.length) categoryList.push(...getCategoryList(category.subcategories));
     }
-    return resultList;
+    return categoryList;
 };
 
 /**
