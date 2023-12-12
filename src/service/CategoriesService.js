@@ -17,7 +17,7 @@ const LIMIT = 20;
 const buildCategoryTree = (categories) =>
     categories.map(({ id, name: label, subcategories = [] }) => {
         const children = buildCategoryTree(subcategories);
-        return { id, label, ...(children.length && { children }) };
+        return { ...(children.length && { children }), id, label };
     });
 
 const fetchCategoryTree = async (lang) => {
