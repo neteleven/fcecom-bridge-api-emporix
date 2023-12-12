@@ -32,7 +32,7 @@ const fetchCategoryTree = async (lang) => {
         );
         categories.push(data);
     }
-    
+
     categories = categories
     .filter((category) => !category.errors)
     .filter((category) => !!category.name)
@@ -70,13 +70,13 @@ const buildCache = (categories) => {
  * @return Promise<*> The category tree.
  */
 const fetchCategories = async (lang, parentId) => {
-    let categories = []
+    let categories
     if (parentId) {
         try {
             const { data } = await httpClient.get(
                 OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
             );
-            categories.push(data);
+            categories = data;
         } catch (error) {
             return { errors: true};
         }
@@ -87,14 +87,15 @@ const fetchCategories = async (lang, parentId) => {
             );
             for (const categoryId of data.categoryIds){
                 const { data } = await httpClient.get(
-                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?lang=${lang}`
+                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}/subcategories?lang=${lang}`
                 );
-                categories.push(data);
+                categories = data;
             }
         } catch (error) {
             return { errors: true}
         }
     }
+
     categories = categories
     .filter((category) => !category.errors)
     .filter((category) => !!category.name)
