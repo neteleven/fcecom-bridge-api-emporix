@@ -40,8 +40,9 @@ const fetchCategoryTree = async (lang) => {
         return { id: category.id, name: category.name, subcategories: category.subcategories };
     });     
     buildCache(categories);
+
     return {
-        status: categories.status,
+        status: 200,
         categories: buildCategoryTree(categories),
     };
 };
@@ -206,7 +207,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
 const categoryTreeGet = async (parentId, lang) => {
     const { categories } = await fetchCategoryTree(lang, parentId, true);
 
-    return { categorytree: categories[0], total: categories.length, hasNext: false };
+    return { categorytree: categories, total: categories.length, hasNext: false };
 };
 
 /**
