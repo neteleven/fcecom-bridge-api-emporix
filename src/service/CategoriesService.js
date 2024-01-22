@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const LOGGING_NAME = 'CategoriesService';
 
-const { CATALOG_ID, OCC_PATH, BASE_SITE_ID } = process.env;
+const { CATALOG_ID, EMPORIX_TENANT } = process.env;
 // Map to cache category IDs in order to resolve their URLs later
 const idCache = new Map();
 
@@ -24,11 +24,11 @@ const fetchCategoryTree = async (lang) => {
     let categories = []
 
     const { data } = await httpClient.get(
-        OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+        `/catalog/${EMPORIX_TENANT}/catalogs/${CATALOG_ID}`
     );
     for (const categoryId of data.categoryIds){
         const { data } = await httpClient.get(
-            OCC_PATH + `/category/` + BASE_SITE_ID + `/category-trees/${categoryId}?lang=${lang}`
+            `/category/${EMPORIX_TENANT}/category-trees/${categoryId}?lang=${lang}`
         );
         categories.push(data);
     }
@@ -75,7 +75,7 @@ const fetchCategories = async (lang, parentId) => {
     if (parentId) {
         try {
             const { data } = await httpClient.get(
-                OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${parentId}/subcategories?lang=${lang}`
+                `/category/${EMPORIX_TENANT}/categories/${parentId}/subcategories?lang=${lang}`
             );
             categories = data;
         } catch (error) {
@@ -84,11 +84,11 @@ const fetchCategories = async (lang, parentId) => {
     } else {
         try {
             const { data } = await httpClient.get(
-                OCC_PATH + `/catalog/` + BASE_SITE_ID + `/catalogs/${CATALOG_ID}`
+                `/catalog/${EMPORIX_TENANT}/catalogs/${CATALOG_ID}`
             );
             for (const categoryId of data.categoryIds){
                 const { data } = await httpClient.get(
-                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}/subcategories?lang=${lang}`
+                    `/category/${EMPORIX_TENANT}/categories/${categoryId}/subcategories?lang=${lang}`
                 );
                 categories = data;
             }
@@ -127,7 +127,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
 
             try {
                 const { data } = await httpClient.get(
-                    OCC_PATH + `/category/` + BASE_SITE_ID + `/categories/${categoryId}?${new URLSearchParams({ lang })}`
+                    `/category/${EMPORIX_TENANT}/categories/${categoryId}?${new URLSearchParams({ lang })}`
                 );
                 return data;
             } catch (error) {

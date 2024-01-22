@@ -34,10 +34,9 @@ The configuration is done by copying the `.env.template` file in the root direct
 | SSL_CERT                | The path to the certificate file to use when using HTTPS.                                                          |
 | SSL_KEY                 | The path to the private key file to use when using HTTPS.                                                          |
 | OAUTH_TOKEN_URL         | The URL where the Oauth token can be retrieved from Emporix.                                                  |
-| BASE_URL                | The base URL of the SAP Commerce Server (the URL without any paths).                                               |
-| MEDIA_CDN_URL           | The URL of the Server where the Media files (Images) reside. (SAP Commerce default: the same as the BASE_URL).     |
-| OCC_PATH                | The path of the OCC V2 api, relative to the BASE_URL (SAP Commerce default: "/occ/v2/").                           |
-| BASE_SITE_ID            | The ID of the SAP Commerce Basesite used for content and products.                                                 |
+| BASE_URL                | The base URL of the Emporix API                                               |
+| MEDIA_CDN_URL           | The URL of the Server where the Media files (Images) reside. (SAP Commerce default: the same as the BASE_URL).    |
+| EMPORIX_TENANT          | The ID of the Emporix Tenant used for products and categories.                                                 |
 | CATALOG_ID              | The ID of the product catalog used in SAP Commerce.                                                                |
 | CATALOG_VERSION         | The version of the product catalog used in SAP Commerce.                                                           |
 | API_USERNAME            | The username to authenticate to Emporix Commerce.                                                                      |

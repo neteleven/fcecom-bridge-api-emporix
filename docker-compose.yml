@@ -13,10 +13,9 @@ services:
       - BRIDGE_AUTH_PASSWORD=nimda
       - CONN_MODE=HTTP
       - OAUTH_TOKEN_URL=https://api.emporix.io/oauth/token
-      - BASE_URL=https://api.emporix.io/product/n11showcase
+      - BASE_URL=https://api.emporix.io
       - MEDIA_CDN_URL=http://res.cloudinary.com/saas-ag/image/upload/v1694790569/n11showcase/media
-      - OCC_PATH=https://api.emporix.io
-      - BASE_SITE_ID=${EMPORIX_TENANT}
+      - EMPORIX_TENANT=${EMPORIX_TENANT}
       - CATALOG_ID=650471fc71190941ca31fcd7
       - API_USERNAME=admin
       - API_PASSWORD=nimda

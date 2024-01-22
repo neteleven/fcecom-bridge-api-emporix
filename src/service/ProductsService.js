@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const LOGGING_NAME = 'ProductsService';
 
-const { BASE_SITE_ID, OCC_PATH } = process.env;
+const { EMPORIX_TENANT } = process.env;
 
 /**
  * This method fetches all products and transforms them into the internal model.
@@ -21,8 +21,8 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
                 const params = `${productId}?${new URLSearchParams({ fields })}`;
                 logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
                 try {
-                    //const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${params}`);
-                    const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${productIds}`);
+                    //const { data } = await httpClient.get(`/product/${EMPORIX_TENANT}/products/${params}`);
+                    const { data } = await httpClient.get(`/product/${EMPORIX_TENANT}/products/${productIds}`);
                     return data;
                 } catch (error) {
                     return { errors: true };
@@ -37,7 +37,7 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
 
         logger.logDebug(LOGGING_NAME, `Performing GET request to /products/search with parameters ${params}`);
 
-        const { data, status } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products?${params}`);
+        const { data, status } = await httpClient.get(`/product/${EMPORIX_TENANT}/products?${params}`);
         products = data || [];
         responseStatus = status;
         total = data.pagination?.totalResults || 0;
@@ -69,7 +69,7 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
  * @param {number} [page=1] Number of the page to retrieve.
  * @return The fetched products.
  */
-const productsGet = async (categoryId, keyword, lang, page = 1) => {
+const productsGet = async (categoryId, keyword, _lang, page = 1) => {
     const { products, total, hasNext } = await fetchProducts({ page, categoryId, q: keyword });
 
     return { products, total, hasNext };
