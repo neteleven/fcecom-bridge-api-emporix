@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const LOGGING_NAME = 'ProductsService';
 
-const { MEDIA_CDN_URL, BASE_SITE_ID, OCC_PATH } = process.env;
+const { BASE_SITE_ID, OCC_PATH } = process.env;
 
 /**
  * This method fetches all products and transforms them into the internal model.
@@ -61,21 +61,6 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
 };
 
 /**
- * This method returns the URL for the given product.
- *
- * @param {number} productId The ID of the product to get the URL for.
- * @return {string} The URL of the given product.
- */
-const getProductUrl = async (productId) => {
-    const params = `${productId}?${new URLSearchParams({ fields: 'url' })}`;
-
-    logger.logDebug(LOGGING_NAME, `Performing GET request to /products/ with parameters ${params}`);
-
-    const { data } = await httpClient.get(OCC_PATH + `/product/` + BASE_SITE_ID + `/products/${params}`);
-    return { url: data.url };
-};
-
-/**
  * This method fetches all products and transforms them into the internal model.
  *
  * @param {number} [categoryId] ID of the category to get products from.
@@ -85,7 +70,7 @@ const getProductUrl = async (productId) => {
  * @return The fetched products.
  */
 const productsGet = async (categoryId, keyword, lang, page = 1) => {
-    const { products, total, hasNext, responseStatus } = await fetchProducts({ page, categoryId, q: keyword });
+    const { products, total, hasNext } = await fetchProducts({ page, categoryId, q: keyword });
 
     return { products, total, hasNext };
 };
@@ -106,5 +91,4 @@ const productsProductIdsGet = async (productIds) => {
 module.exports = {
     productsProductIdsGet,
     productsGet,
-    getProductUrl
 };

@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/neteleven/fcecom-bridge-api-emporix.git"
   },
-  "author": "Crownpeak Technology GmbH",
+  "author": "neteleven GmbH",
   "license": "Apache-2.0",
   "scripts": {
     "start": "node server.js",

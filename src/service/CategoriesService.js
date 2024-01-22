@@ -146,37 +146,6 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
 };
 
 /**
- * This method returns the URL for the category with the given ID.
- *
- * @param {string} categoryId ID of the category to get the URL for.
- * @param {string} lang the language to get the URL for.
- * @return {Promise<string>} The URL of the category, null if given ID is invalid.
- */
-const getCategoryUrl = async (categoryId, lang) => {
-    idCache.size || (await fetchCategories(lang, true));
-    if (idCache.has(categoryId)) {
-        return { url: idCache.get(categoryId) };
-    } else {
-        logger.logError(LOGGING_NAME, 'Invalid categoryId passed', categoryId);
-        return null;
-    }
-};
-
-/**
- * This Method returns the passed Categories in a flat list
- * @param {{id: string, name: string, subcategories: *[]}[]} categories
- * @return {{id: string, name: string, subcategories: *[]}[]}
- */
-const getCategoryList = (categories) => {
-    let categoryList = [];
-    for (const category of categories) {
-        categoryList.push({ id: category.id, label: category.name });
-        if (category.subcategories && category.subcategories.length) categoryList.push(...getCategoryList(category.subcategories));
-    }
-    return categoryList;
-};
-
-/**
  * This method fetches all categories and returns them as a flat list structure.
  * @see SwaggerUI {@link http://localhost:8080/api/#/categories/get_categories}
  *
@@ -228,8 +197,6 @@ module.exports = {
     fetchCategoryTree,
     fetchCategories,
     fetchCategoriesByIds,
-    getCategoryUrl,
-    getCategoryList,
     categoriesGet,
     categoryTreeGet,
     categoriesCategoryIdsGet

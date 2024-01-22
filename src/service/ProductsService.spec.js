@@ -5,8 +5,6 @@ const service = require('./ProductsService');
 jest.mock('../../src/utils/http-client');
 
 describe('ProductsService', () => {
-    httpClient.constants.FULL_OCC_PATH = 'path/to/OCC';
-
     describe('productsGet', () => {
         it('fetches product data and maps it to internal type', async () => {
             const body = {
@@ -42,17 +40,6 @@ describe('ProductsService', () => {
                 expect(page.id).toBeDefined();
             });
             expect(result.total).toEqual(2);
-        });
-    });
-    describe('getProductUrl', () => {
-        it('returns the correct URL', async () => {
-            const productId = data.getProductUrl.id;
-            httpClient.get.mockResolvedValue({ data: data.getProductUrl, status: 200 });
-
-            const result = await service.getProductUrl(productId);
-
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/products/${productId}?fields=url`);
-            expect(result).toEqual({ url: data.getProductUrl.url });
         });
     });
 });

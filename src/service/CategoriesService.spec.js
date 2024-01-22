@@ -6,28 +6,7 @@ jest.mock('../../src/utils/http-client');
 
 describe('CategoriesService', () => {
     const testLang = 'EN';
-    const testCategory = data.categoriesGet.categories[0];
-    httpClient.constants.FULL_OCC_PATH = 'path/to/OCC';
 
-    describe('getCategoryUrl', () => {
-        it('returns the URL of the given category', async () => {
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
-
-            const result = await service.getCategoryUrl(testCategory.id, testLang);
-
-            expect(result).toEqual({ url: testCategory.url });
-            expect(httpClient.get.mock.calls[0][0]).toEqual('path/to/OCC/catalogs/catalog_id/catalog_version?lang=EN');
-        });
-        it('returns null if the given category is invalid', async () => {
-            console.error = jest.fn();
-            httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
-
-            const result = await service.getCategoryUrl('-999', testLang);
-
-            expect(result).toEqual(null);
-            expect(console.error).toHaveBeenCalled();
-        });
-    });
     describe('fetchCategories', () => {
         it('returns the categories as tree', async () => {
             process.env = {
@@ -60,16 +39,6 @@ describe('CategoriesService', () => {
             expect(result[0].children[0].id).toEqual(data.buildCategoryTreeResult.data[0].children[0].id);
             expect(result[0].children[1].id).toEqual(data.buildCategoryTreeResult.data[0].children[1].id);
             expect(result[2].id).toEqual(data.buildCategoryTreeResult.data[2].id);
-        });
-    });
-    describe('getCategoryList', () => {
-        it('converts the categories tree to a flat array', async () => {
-            const result = service.getCategoryList(data.categoriesGet.categories);
-
-            expect(result[0].children).toBeUndefined();
-            expect(result[1].children).toBeUndefined();
-            expect(result[3].children).toBeUndefined();
-            expect(result[5].children).toBeUndefined();
         });
     });
     describe('getCategoriesById', () => {

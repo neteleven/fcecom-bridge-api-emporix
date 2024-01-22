@@ -140,9 +140,3 @@ module.exports.fetchProducts = {
         totalResults: 10
     }
 };
-
-// Data received from /v3/catalog/products/86
-module.exports.getProductUrl = {
-    id: 86,
-    custom_url: { url: '/able-brewing-system/', is_customized: false }
-};
