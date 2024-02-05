@@ -9,10 +9,8 @@ const {
     OAUTH_TOKEN_URL: url,
     EMPORIX_CLIENT_ID: client_id,
     EMPORIX_CLIENT_SECRET: client_secret,
-    API_USERNAME: username,
-    API_PASSWORD: password,
 } = process.env;
-const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'client_credentials', client_id, client_secret, username, password });
+const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'client_credentials', client_id, client_secret });
 
 const { BASE_URL } = process.env;
 const client = axios.create({ baseURL: BASE_URL });

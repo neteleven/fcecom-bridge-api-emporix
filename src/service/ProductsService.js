@@ -48,12 +48,6 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         const image = media[0].url;
         const label = name.de;
         const thumbnail = media[0].url;
-        /*
-        const { thumbnail, product: image } = images.reduce(
-            (map, { format, url }) => Object.assign(map, { [format]: MEDIA_CDN_URL + url }),
-            {}
-        );
-        */
         return { extract, id, image, label, thumbnail };
     });
 

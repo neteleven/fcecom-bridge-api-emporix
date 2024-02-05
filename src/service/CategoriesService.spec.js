@@ -9,11 +9,6 @@ describe('CategoriesService', () => {
 
     describe('fetchCategories', () => {
         it('returns the categories as tree', async () => {
-            process.env = {
-                CATALOG_ID: 'catalog_id',
-                CATALOG_VERSION: 'catalog_version'
-            };
-
             httpClient.get.mockResolvedValue({ data: data.categoriesGet, status: 200 });
 
             const result = await service.fetchCategories(testLang, undefined, true);

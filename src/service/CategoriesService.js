@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const LOGGING_NAME = 'CategoriesService';
 
-const { CATALOG_ID, EMPORIX_TENANT } = process.env;
+const { EMPORIX_TENANT } = process.env;
 // Map to cache category IDs in order to resolve their URLs later
 const idCache = new Map();
 
@@ -24,11 +24,11 @@ const fetchCategoryTree = async (lang) => {
     let categories = []
 
     const { data } = await httpClient.get(
-        `/catalog/${EMPORIX_TENANT}/catalogs/${CATALOG_ID}`
+        `/category/${EMPORIX_TENANT}/categories?showRoots=true&lang=${lang}`
     );
-    for (const categoryId of data.categoryIds){
+    for (const rootCategory of data) {
         const { data } = await httpClient.get(
-            `/category/${EMPORIX_TENANT}/category-trees/${categoryId}?lang=${lang}`
+            `/category/${EMPORIX_TENANT}/category-trees/${rootCategory.id}?lang=${lang}&depth=0`
         );
         categories.push(data);
     }
@@ -75,7 +75,7 @@ const fetchCategories = async (lang, parentId) => {
     if (parentId) {
         try {
             const { data } = await httpClient.get(
-                `/category/${EMPORIX_TENANT}/categories/${parentId}/subcategories?lang=${lang}`
+                `/category/${EMPORIX_TENANT}/categories/${parentId}/subcategories?lang=${lang}&depth=1`
             );
             categories = data;
         } catch (error) {
@@ -84,16 +84,11 @@ const fetchCategories = async (lang, parentId) => {
     } else {
         try {
             const { data } = await httpClient.get(
-                `/catalog/${EMPORIX_TENANT}/catalogs/${CATALOG_ID}`
+                `/category/${EMPORIX_TENANT}/categories?showRoots=true&lang=${lang}`
             );
-            for (const categoryId of data.categoryIds){
-                const { data } = await httpClient.get(
-                    `/category/${EMPORIX_TENANT}/categories/${categoryId}/subcategories?lang=${lang}`
-                );
-                categories = data;
-            }
+            categories = data;
         } catch (error) {
-            return { errors: true}
+            return { errors: true }
         }
     }
 
@@ -122,7 +117,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
         categoryIds.map(async (categoryId) => {
             logger.logDebug(
                 LOGGING_NAME,
-                `Performing GET request to /catalogs/ with parameters ${CATALOG_ID}/categories/${categoryId}?lang=${lang}`
+                `Performing GET request to /category/${EMPORIX_TENANT}/categories/${categoryId}?lang=${lang}`
             );
 
             try {
@@ -158,7 +153,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
     const data = await fetchCategories(lang, parentId, false);
 
     const total = data.length;
-    const pageSize = 20;
+    const pageSize = LIMIT;
     const hasNext = page * pageSize <= total;
     const categories = data.categories;
 
@@ -194,9 +189,6 @@ const categoriesCategoryIdsGet = async (categoryIds, lang) => {
 };
 
 module.exports = {
-    fetchCategoryTree,
-    fetchCategories,
-    fetchCategoriesByIds,
     categoriesGet,
     categoryTreeGet,
     categoriesCategoryIdsGet
