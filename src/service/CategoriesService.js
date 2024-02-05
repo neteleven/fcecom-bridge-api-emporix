@@ -4,10 +4,6 @@ const logger = require('../utils/logger');
 const LOGGING_NAME = 'CategoriesService';
 
 const { EMPORIX_TENANT } = process.env;
-// Map to cache category IDs in order to resolve their URLs later
-const idCache = new Map();
-
-const LIMIT = 20;
 
 /**
  * This method recursively creates a nested tree structure for the given categories.
@@ -55,27 +51,12 @@ const fetchCategoryTree = async (lang, parentId) => {
     .map((category) => {
         return { id: category.id, name: category.name, subcategories: category.subcategories };
     });
-    buildCache(categories);
 
     return {
         status: 200,
         categories: buildCategoryTree(categories),
     };
 };
-
-/**
- * This Method traverses through the Category tree and builds fills the idCache with data
- *
- * @param {any[]} categories: the categories
- */
-const buildCache = (categories) => {
-    if(categories)
-    categories.forEach(({ id, name: label, subcategories }) => {
-        idCache.set(id, label);
-        idCache.set(label, id);
-        buildCache(subcategories);
-    });
-}
 
 /**
  * This method fetches all categories and returns them as a nested structure.
@@ -169,7 +150,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
     const data = await fetchCategories(lang, parentId);
 
     const total = data.length;
-    const pageSize = LIMIT;
+    const pageSize = 60;
     const hasNext = page * pageSize <= total;
     const categories = data.categories;
 
