@@ -20,17 +20,33 @@ const buildCategoryTree = (categories) =>
         return { ...(children.length && { children }), id, label };
     });
 
-const fetchCategoryTree = async (lang) => {
-    let categories = []
+const findCategoryWithIdRecursive = (categoryTree, id) => {
+    for (const category of categoryTree) {
+        if (category.id === id) {
+            return category;
+        }
+
+        const matchingSubCategory = findCategoryWithIdRecursive(category.subcategories, id);
+        if (matchingSubCategory) {
+            return matchingSubCategory;
+        }
+    }
+
+    return null;
+}
+
+const fetchCategoryTree = async (lang, parentId) => {
+    let categories
 
     const { data } = await httpClient.get(
-        `/category/${EMPORIX_TENANT}/categories?showRoots=true&lang=${lang}`
+        `/category/${EMPORIX_TENANT}/category-trees?lang=${lang}`
     );
-    for (const rootCategory of data) {
-        const { data } = await httpClient.get(
-            `/category/${EMPORIX_TENANT}/category-trees/${rootCategory.id}?lang=${lang}&depth=0`
-        );
-        categories.push(data);
+    categories = data;
+
+    if (parentId) {
+        const parentCategory = findCategoryWithIdRecursive(categories, parentId)
+        console.log(JSON.stringify(parentCategory))
+        categories = parentCategory?.subcategories ?? []
     }
 
     categories = categories
@@ -38,7 +54,7 @@ const fetchCategoryTree = async (lang) => {
     .filter((category) => !!category.name)
     .map((category) => {
         return { id: category.id, name: category.name, subcategories: category.subcategories };
-    });     
+    });
     buildCache(categories);
 
     return {
@@ -169,7 +185,7 @@ const categoriesGet = async (parentId, lang, page = 1) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoryTreeGet = async (parentId, lang) => {
-    const { categories } = await fetchCategoryTree(lang, parentId, true);
+    const { categories } = await fetchCategoryTree(lang, parentId);
 
     return { categorytree: categories, total: categories.length, hasNext: false };
 };
