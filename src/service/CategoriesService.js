@@ -75,7 +75,7 @@ const fetchCategories = async (lang, parentId) => {
     if (parentId) {
         try {
             const { data } = await httpClient.get(
-                `/category/${EMPORIX_TENANT}/categories/${parentId}/subcategories?lang=${lang}&depth=1`
+                `/category/${EMPORIX_TENANT}/categories/${parentId}/subcategories?lang=${lang}`
             );
             categories = data;
         } catch (error) {
@@ -84,7 +84,7 @@ const fetchCategories = async (lang, parentId) => {
     } else {
         try {
             const { data } = await httpClient.get(
-                `/category/${EMPORIX_TENANT}/categories?showRoots=true&lang=${lang}`
+                `/category/${EMPORIX_TENANT}/categories?showRoots=false&lang=${lang}`
             );
             categories = data;
         } catch (error) {
@@ -150,7 +150,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
  * @return Promise<{ hasNext: boolean, total: number, categories: any[]}> The category tree.
  */
 const categoriesGet = async (parentId, lang, page = 1) => {
-    const data = await fetchCategories(lang, parentId, false);
+    const data = await fetchCategories(lang, parentId);
 
     const total = data.length;
     const pageSize = LIMIT;
