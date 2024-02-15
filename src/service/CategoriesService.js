@@ -41,7 +41,7 @@ const fetchCategoryTree = async (lang, parentId) => {
 
     if (parentId) {
         const parentCategory = findCategoryWithIdRecursive(categories, parentId)
-        console.log(JSON.stringify(parentCategory))
+
         categories = parentCategory?.subcategories ?? []
     }
 
@@ -95,6 +95,7 @@ const fetchCategories = async (lang, parentId) => {
     .map((category) => {
         return { id: category.id, label: category.name };
     });
+
     return {
         status: categories.status,
         categories: categories,
@@ -149,7 +150,7 @@ const fetchCategoriesByIds = async ({ categoryIds, lang }) => {
 const categoriesGet = async (parentId, lang, page = 1) => {
     const data = await fetchCategories(lang, parentId);
 
-    const total = data.length;
+    const total = data.total;
     const pageSize = 60;
     const hasNext = page * pageSize <= total;
     const categories = data.categories;

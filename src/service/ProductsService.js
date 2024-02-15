@@ -40,7 +40,7 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         const { data, status } = await httpClient.get(`/product/${EMPORIX_TENANT}/products?${params}`);
         products = data || [];
         responseStatus = status;
-        total = data.pagination?.totalResults || 0;
+        total = data.pagination?.totalResults || products?.length;
         hasNext = page < data.pagination?.totalPages || false;
     }
 
