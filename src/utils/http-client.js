@@ -2,7 +2,6 @@ const axios = require('axios');
 const oauth = require('axios-oauth-client');
 const tokenInterceptor = require('axios-token-interceptor');
 const logger = require('./logger');
-const errorMapper = require('./error-mapper');
 
 const LOGGING_NAME = 'http-client';
 
@@ -10,20 +9,14 @@ const {
     OAUTH_TOKEN_URL: url,
     EMPORIX_CLIENT_ID: client_id,
     EMPORIX_CLIENT_SECRET: client_secret,
-    API_USERNAME: username,
-    API_PASSWORD: password,
-    AIR_KEY: airKey
 } = process.env;
-const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'client_credentials', client_id, client_secret, username, password });
+const getOwnerCredentials = oauth.client(axios.create(), { url, grant_type: 'client_credentials', client_id, client_secret });
 
-const { BASE_URL, BASE_SITE_ID, OCC_PATH, CMS_PATH } = process.env;
+const { BASE_URL } = process.env;
 const client = axios.create({ baseURL: BASE_URL });
 client.interceptors.request.use(oauth.interceptor(tokenInterceptor, getOwnerCredentials));
 client.interceptors.request.use((config) => {
     config.headers['X-Version'] = 'v2';
-    if (airKey) {
-        config.headers['Application-Interface-Key'] = airKey;
-    }
     return config;
 });
 
@@ -48,7 +41,6 @@ client.interceptors.response.use(
                     response.statusText
                 } ${message} ${JSON.stringify(data, null, 2)}`
             );
-            errorMapper.mapErrors(response);
         } else {
             logger.logError(LOGGING_NAME, `↳ ${message}`);
         }
@@ -59,7 +51,3 @@ client.interceptors.response.use(
 
 module.exports = client;
 module.exports.getLastError = () => lastError;
-module.exports.constants = {
-    FULL_OCC_PATH: OCC_PATH + '/' + BASE_SITE_ID,
-    FULL_CMS_PATH: CMS_PATH + '/' + BASE_SITE_ID
-};

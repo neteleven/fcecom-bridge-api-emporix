@@ -5,8 +5,6 @@ const service = require('./ProductsService');
 jest.mock('../../src/utils/http-client');
 
 describe('ProductsService', () => {
-    httpClient.constants.FULL_OCC_PATH = 'path/to/OCC';
-
     describe('productsGet', () => {
         it('fetches product data and maps it to internal type', async () => {
             const body = {
@@ -14,16 +12,16 @@ describe('ProductsService', () => {
                 categoryId: 456,
                 q: 'KEYWORD'
             };
-            httpClient.get.mockResolvedValue({ data: data.fetchProducts, status: 200 });
+            httpClient.get.mockResolvedValue({ data: data.fetchProducts.products });
 
             const result = await service.productsGet(body);
 
-            expect(httpClient.get.mock.calls[0][0]).toContain(`path/to/OCC/products/search`);
+            expect(httpClient.get.mock.calls[0][0]).toContain(`/product/n11showcase/products?query=%3Arelevance%3Acategory%3A%5Bobject+Object%5D`);
             expect(result.products.length).toEqual(data.fetchProducts.products.length);
             result.products.forEach((product, index) => {
-                expect(product.id).toEqual(data.fetchProducts.products[index].code);
-                expect(product.label).toEqual(data.fetchProducts.products[index].name);
-                expect(product.extract).toEqual(data.fetchProducts.products[index].url);
+                expect(product.id).toEqual(data.fetchProducts.products[index].id);
+                expect(product.label).toEqual(data.fetchProducts.products[index].name.de);
+                expect(product.extract).toEqual(data.fetchProducts.products[index].code);
             });
             expect(result.total).toEqual(data.fetchProducts.products.length);
             expect(result.hasNext).toEqual(data.fetchProducts.pagination.currentPage + 1 > data.fetchProducts.pagination.totalPages);
@@ -42,17 +40,6 @@ describe('ProductsService', () => {
                 expect(page.id).toBeDefined();
             });
             expect(result.total).toEqual(2);
-        });
-    });
-    describe('getProductUrl', () => {
-        it('returns the correct URL', async () => {
-            const productId = data.getProductUrl.id;
-            httpClient.get.mockResolvedValue({ data: data.getProductUrl, status: 200 });
-
-            const result = await service.getProductUrl(productId);
-
-            expect(httpClient.get.mock.calls[0][0]).toEqual(`path/to/OCC/products/${productId}?fields=url`);
-            expect(result).toEqual({ url: data.getProductUrl.url });
         });
     });
 });
