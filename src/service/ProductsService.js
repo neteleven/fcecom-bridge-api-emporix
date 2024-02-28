@@ -32,10 +32,11 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
         products = products.filter((product) => !product.errors);
         total = products?.length;
     } else {
-        const q = `name.localizedMap.de:~(${keyword || ''})`; // ${categoryId ? `:category:${categoryId}` : ''}
+        const q = `name.localizedMap.de:~(${keyword || ''})`;
         const params = `${new URLSearchParams({ q, /*fields: `products(${fields})`, currentPage: page - 1*/ })}`;
 
         logger.logDebug(LOGGING_NAME, `Performing GET request to /products/search with parameters ${params}`);
+        logger.logInfo(LOGGING_NAME, `Performing GET request to /products/search with parameters ${params}`);
 
         const { data, status } = await httpClient.get(`/product/${EMPORIX_TENANT}/products?${params}`);
         products = data || [];
