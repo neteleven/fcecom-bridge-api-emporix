@@ -46,9 +46,9 @@ const fetchProducts = async ({ page = 1, productIds, categoryId, q: keyword }) =
     }
 
     products = products.map(({ code: extract, id, media, name}) => {
-        const image = media[0].url;
+        const image = media[0]?.url;
         const label = name.de;
-        const thumbnail = media[0].url;
+        const thumbnail = media[0]?.url;
         return { extract, id, image, label, thumbnail };
     });
 
